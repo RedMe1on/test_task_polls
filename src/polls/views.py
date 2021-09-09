@@ -4,107 +4,90 @@ from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import permissions
-from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView, CreateAPIView, UpdateAPIView, \
+    DestroyAPIView
 from rest_framework.response import Response
 
 from .models import PollsModel, AnswerModel, QuestionModel, ChoiceModel
 from .serializers import (
     AnswerSerializers,
     QuestionSerializers,
-    PollsSerializer)
+    PollsSerializer, PollsSerializersWithoutStartDate)
 
 
-class GetPolls(GenericAPIView):
+class ActivePollsList(ListAPIView):
     """Получить список активных опросов"""
     serializer_class = PollsSerializer
 
-    def get(self, request, format=None):
-        polls = PollsModel.objects.filter(data_start__gte=datetime.now())
-        active_polls = self.serializer_class(polls, many=True)
-        return Response(active_polls.data)
+    def get_queryset(self):
+        polls = PollsModel.objects.filter(data_start__lte=datetime.now(), data_end__gte=datetime.now())
+        return polls
 
-class PollsListView(ListAPIView):
-    """Список опросов"""
+
+class GetPoll(RetrieveAPIView):
+    """Получить опрос с вопросами"""
     serializer_class = PollsSerializer
 
+    def get_queryset(self):
+        polls = PollsModel.objects.filter(data_start__lte=datetime.now(), data_end__gte=datetime.now())
+        return polls
 
-class PollsDetailView(RetrieveAPIView):
-    """Список опросов"""
+
+class QuestionAnswer(GenericAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    serializer_class = AnswerSerializers
+
+    def post(self, request, format=None):
+        answer = AnswerSerializers(data=request.data, context=request)
+        if answer.is_valid(raise_exception=True):
+            answer.save()
+            return Response({'result': 'OK'})
+
+
+class UpdatePoll(UpdateAPIView):
+    """Обновить опрос"""
     serializer_class = PollsSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+
+        if self.request.method == 'PUT' or self.request.method == 'PATCH':
+            serializer_class = PollsSerializersWithoutStartDate
+
+        return serializer_class
 
 
-class PollsUpdateView(UpdateAPIView):
-    """Список опросов"""
+class CreatePoll(CreateAPIView):
+    """Создать опрос"""
     serializer_class = PollsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
 
-class PollsCreateView(CreateAPIView):
-    """Список опросов"""
+class DeletePoll(DestroyAPIView):
+    """Удалить опрос"""
     serializer_class = PollsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
 
-class PollsDeleteView(DestroyAPIView):
-    """Список опросов"""
-    serializer_class = PollsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class QuestionListView(ListAPIView):
-    """Список фильмов"""
+class QuestionsList(ListAPIView):
+    """Получить список вопрос"""
     serializer_class = QuestionSerializers
 
 
-class QuestionDetailView(RetrieveAPIView):
-    """Список фильмов"""
+class UpdateQuestion(UpdateAPIView):
+    """Обновить вопрос"""
     serializer_class = QuestionSerializers
+    permission_classes = [permissions.IsAdminUser]
 
 
-class QuestionUpdateView(UpdateAPIView):
-    """Список фильмов"""
+class CreateQuestion(CreateAPIView):
+    """Создать вопрос"""
     serializer_class = QuestionSerializers
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAdminUser]
 
 
-class QuestionCreateView(CreateAPIView):
-    """Список фильмов"""
+class DeleteQuestion(DestroyAPIView):
+    """Удалить вопрос"""
     serializer_class = QuestionSerializers
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class QuestionDeleteView(DestroyAPIView):
-    """Список опросов"""
-    serializer_class = PollsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class AnswerListView(ListAPIView):
-    """Список фильмов"""
-    serializer_class = QuestionSerializers
-
-
-class AnswerDetailView(RetrieveAPIView):
-    """Список фильмов"""
-    serializer_class = QuestionSerializers
-
-
-class AnswerUpdateView(UpdateAPIView):
-    """Список фильмов"""
-    serializer_class = QuestionSerializers
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class AnswerCreateView(CreateAPIView):
-    """Список фильмов"""
-    serializer_class = QuestionSerializers
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class AnswerDeleteView(DestroyAPIView):
-    """Список опросов"""
-    serializer_class = PollsSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-
-
+    permission_classes = [permissions.IsAdminUser]
