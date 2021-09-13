@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -17,7 +17,7 @@ class PollsModel(PublicationModel):
     """Model for polls"""
     title = models.CharField(max_length=150, verbose_name='Название')
     description = models.TextField(verbose_name='Описание опроса', blank=True)
-    data_start = models.DateTimeField(verbose_name='Дата старта',)
+    data_start = models.DateTimeField(verbose_name='Дата старта', )
     data_end = models.DateTimeField(verbose_name='Дата окончания')
 
     def __str__(self):
@@ -46,7 +46,7 @@ class QuestionModel(PublicationModel):
 
 class ChoiceModel(PublicationModel):
     """Model for choice """
-    question = models.ForeignKey(QuestionModel, on_delete=models.DO_NOTHING)
+    question = models.ForeignKey(QuestionModel, on_delete=models.DO_NOTHING, related_name='choices')
     title = models.CharField(max_length=4096)
 
     def __str__(self):
@@ -55,13 +55,11 @@ class ChoiceModel(PublicationModel):
 
 class AnswerModel(models.Model):
     """Model for answers"""
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='Пользователь', null=True)
-    question = models.ForeignKey(QuestionModel, on_delete=models.DO_NOTHING, verbose_name='Вопрос')
-    choice = models.ForeignKey(ChoiceModel, on_delete=models.DO_NOTHING, verbose_name='Ответ', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name='Пользователь', null=True,
+                             related_name='answers')
+    question = models.ForeignKey(QuestionModel, on_delete=models.DO_NOTHING, verbose_name='Вопрос',
+                                 related_name='questions')
+    choice = models.ForeignKey(ChoiceModel, on_delete=models.DO_NOTHING, verbose_name='Ответ', null=True, blank=True,
+                               related_name='choices')
     text = models.TextField(verbose_name='Текстовый ответ', null=True, blank=True)
     data_created = models.DateField(auto_now_add=True, verbose_name='Дата создания')
-
-    def __str__(self):
-        return self.text
-
-

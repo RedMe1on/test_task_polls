@@ -12,7 +12,7 @@ class PollsAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
     def get_readonly_fields(self, request, obj=None):
-        if obj:  # when editing an object
+        if obj:
             return ['data_start']
         return self.readonly_fields
 
@@ -33,6 +33,6 @@ class ChoiceAdmin(admin.ModelAdmin):
 
 @admin.register(AnswerModel)
 class AnswerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', 'question', 'choice', 'data_created')
+    list_display = ('id', 'user', 'question', 'choice', 'text', 'data_created')
     list_display_links = ('question',)
     ordering = ('id',)

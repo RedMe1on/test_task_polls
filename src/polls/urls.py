@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import ActivePollsList, UpdatePoll, CreatePoll, DeletePoll, QuestionsList, UpdateQuestion, CreateQuestion, \
-    DeleteQuestion, GetPoll, QuestionAnswer
+    DeleteQuestion, GetPoll, QuestionAnswer, UserInfo
 
 urlpatterns = [
     path('polls/', ActivePollsList.as_view(), name='active_polls'),
@@ -13,5 +13,6 @@ urlpatterns = [
     path('questions/create', CreateQuestion.as_view(), name='create_questions'),
     path('questions/delete', DeleteQuestion.as_view(), name='delete_questions'),
     path('answer', QuestionAnswer.as_view(), name='answer_questions'),
+    path('user/<int:pk>', UserInfo.as_view(), name='info_user'),
 
 ]

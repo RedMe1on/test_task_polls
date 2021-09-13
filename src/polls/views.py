@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.models import User
 from django.shortcuts import render
 
 # Create your views here.
@@ -12,7 +13,7 @@ from .models import PollsModel, AnswerModel, QuestionModel, ChoiceModel
 from .serializers import (
     AnswerSerializers,
     QuestionSerializers,
-    PollsSerializer, PollsSerializersWithoutStartDate)
+    PollsSerializer, PollsSerializersWithoutStartDate, UserInfoSerializers)
 
 
 class ActivePollsList(ListAPIView):
@@ -34,7 +35,7 @@ class GetPoll(RetrieveAPIView):
 
 
 class QuestionAnswer(GenericAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    """Ответить на вопрос"""
     serializer_class = AnswerSerializers
 
     def post(self, request, format=None):
@@ -42,6 +43,12 @@ class QuestionAnswer(GenericAPIView):
         if answer.is_valid(raise_exception=True):
             answer.save()
             return Response({'result': 'OK'})
+
+
+class UserInfo(RetrieveAPIView):
+    """Получить информацию по пройденным опросам"""
+    queryset = User.objects.all()
+    serializer_class = UserInfoSerializers
 
 
 class UpdatePoll(UpdateAPIView):
