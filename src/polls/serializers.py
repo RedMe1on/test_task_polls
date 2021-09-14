@@ -38,9 +38,9 @@ class PollsSerializersWithoutStartDate(serializers.ModelSerializer):
 
 class AnswerSerializers(serializers.Serializer):
     """Serializer for answers"""
-    poll_id = serializers.IntegerField()
+    poll_id = serializers.IntegerField(min_value=1)
     answers = serializers.JSONField()
-    user_id = serializers.IntegerField(required=False)
+    user_id = serializers.IntegerField(required=False, min_value=1)
 
     def validate_answers(self, answers):
         if not answers:
