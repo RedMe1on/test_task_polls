@@ -74,17 +74,18 @@ class AnswerSerializers(serializers.Serializer):
         except ObjectDoesNotExist:
             user = None  # или создать, если нужен анонимный юзер с id, чтобы видеть, что ответил один и тот же
 
-        for question_id in answers:
-            question = QuestionModel.objects.get(pk=question_id)
-            if self.validate_poll_question(poll_id=poll_id, question=question):
-                choices = answers[question_id]
-                if question.type_q == QuestionModel.ONE:
-                    AnswerModel(user=user, question=question, text=choices).save()
+        for question in answers['questions']:
+            question_obj = QuestionModel.objects.get(pk=question['id'])
+
+            if self.validate_poll_question(poll_id=poll_id, question=question_obj):
+                choices = question['choice']
+                if question_obj.type_q == QuestionModel.ONE:
+                    AnswerModel(user=user, question=question_obj, text=choices['text']).save()
                 else:
-                    for choice_id in choices:
+                    for choice_id in choices['id']:
                         choice = ChoiceModel.objects.get(pk=choice_id)
-                        if self.validate_choice_question(choice=choice, question=question):
-                            AnswerModel(user=user, question=question, choice=choice).save()
+                        if self.validate_choice_question(choice=choice, question=question_obj):
+                            AnswerModel(user=user, question=question_obj, choice=choice).save()
 
 
 class AnswerSerializersInfo(serializers.ModelSerializer):
