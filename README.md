@@ -2,8 +2,8 @@
 
 1) Скачать или клонировать репозиторий
 2) перейти в директорию scr
-3) запустить команду 
-docker-compose up -d --build
+3) запустить команду
+<code>docker-compose up -d --build</code>
 
 
 
